@@ -6,22 +6,22 @@ import (
 )
 
 func readExcel(file *excelize.File, cfg Config) ([][]string, error) {
-	startCol, startRow, err := excelize.SplitCellName(cfg.Start)
+	startCol, startRow, err := splitCellName(cfg.Start)
 	if err != nil {
 		return nil, err
 	}
 
-	colEnd, rowEnd, err := excelize.SplitCellName(cfg.End)
+	colEnd, rowEnd, err := splitCellName(cfg.End)
 	if err != nil {
 		return nil, err
 	}
 
-	colNumStart, err := excelize.ColumnNameToNumber(startCol)
+	colNumStart, err := convertColNameToNumber(startCol)
 	if err != nil {
 		return nil, err
 	}
 
-	colNumEnd, err := excelize.ColumnNameToNumber(colEnd)
+	colNumEnd, err := convertColNameToNumber(colEnd)
 	if err != nil {
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func readExcel(file *excelize.File, cfg Config) ([][]string, error) {
 
 	rows, err := file.GetRows(cfg.Sheet)
 	if err != nil {
-		return nil, fmt.Errorf("GetRows(): %w", err)
+		return nil, fmt.Errorf("get rows from sheet '%s': %w", cfg.Sheet, err)
 	}
 
 	for rowNum := startRow - 1; rowNum < len(rows) && rowNum < rowEnd; rowNum++ {
@@ -51,4 +51,23 @@ func readExcel(file *excelize.File, cfg Config) ([][]string, error) {
 	}
 
 	return resp, nil
+}
+
+func convertColNameToNumber(colName string) (int, error) {
+	colNum, err := excelize.ColumnNameToNumber(colName)
+	if err != nil {
+		return 0, fmt.Errorf("convert column name - '%s' to number: %w",
+			colName, err)
+	}
+
+	return colNum, nil
+}
+
+func splitCellName(cellName string) (string, int, error) {
+	colName, rowNum, err := excelize.SplitCellName(cellName)
+	if err != nil {
+		return "", 0, fmt.Errorf("split cell name - '%s': %w", cellName, err)
+	}
+
+	return colName, rowNum, nil
 }

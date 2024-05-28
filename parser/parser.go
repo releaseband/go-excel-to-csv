@@ -84,12 +84,12 @@ func (p *Parser) makeDir(prefix, outDir string) (string, error) {
 func parseCoordination(f *excelize.File, cfg Config) (*Config, error) {
 	data, err := readExcel(f, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("parse excel %w", err)
+		return nil, fmt.Errorf("read excel %s: %w", cfg.String(), err)
 	}
 
 	cfgPath, err := parseConfigMap(data)
 	if err != nil {
-		return nil, fmt.Errorf("parse to config %w", err)
+		return nil, fmt.Errorf("parse to config %s: %w", cfg.String(), err)
 	}
 
 	return &cfgPath, nil
